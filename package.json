@@ -1,5 +1,6 @@
 {
   "name": "meteor-observe-sequence",
+  "repository": { "type": "git", "url": "https://github.com/eface2face/meteor-observe-sequence" },
   "version": "1.0.0",
   "description": "",
   "main": "observe_sequence.js",
