@@ -6,6 +6,7 @@ Package.minimongo = require("meteor-minimongo");
 var LocalCollection = Package.minimongo.LocalCollection;
 var Minimongo = Package.minimongo.Minimongo;
 var ReactiveVar = require("meteor-reactive-var");
+var ObserveSequence;
 var warn = function () {
   if (ObserveSequence._suppressWarnings) {
     ObserveSequence._suppressWarnings--;
