@@ -1,6 +1,6 @@
 var Package = {};
 var _ = require("lodash");
-var Random = require("meteor-random");
+var Random = require("meteor-random-window-crypto");
 var Tracker = require("meteor-tracker");
 Package.minimongo = require("meteor-minimongo");
 var LocalCollection = Package.minimongo.LocalCollection;

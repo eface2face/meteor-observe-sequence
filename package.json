@@ -1,6 +1,9 @@
 {
   "name": "meteor-observe-sequence",
-  "repository": { "type": "git", "url": "https://github.com/eface2face/meteor-observe-sequence" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eface2face/meteor-observe-sequence"
+  },
   "version": "1.0.0",
   "description": "",
   "main": "observe_sequence.js",
@@ -8,5 +11,12 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^2.4.1",
+    "meteor-minimongo": "^1.0.1",
+    "meteor-random-window-crypto": "^1.0.0",
+    "meteor-reactive-var": "^1.0.0",
+    "meteor-tracker": "^1.0.1"
+  }
 }
