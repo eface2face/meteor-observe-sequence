@@ -1,12 +1,13 @@
-var Package = {};
-var _ = require("lodash");
-var Random = require("meteor-random-window-crypto");
-var Tracker = require("meteor-tracker");
-Package.minimongo = require("meteor-minimongo");
-var LocalCollection = Package.minimongo.LocalCollection;
-var Minimongo = Package.minimongo.Minimongo;
-var ReactiveVar = require("meteor-reactive-var");
-var ObserveSequence;
+module.exports = function(Meteor) {
+  var _ = Meteor.underscore;
+  var Random = Meteor.Random;
+  var Tracker = Meteor.Tracker;
+  var Minimongo = Meteor.Minimongo;
+  var LocalCollection = Meteor.LocalCollection;
+  var ReactiveVar = Meteor.ReactiveVar;
+  var Package = {};
+  Package.minimongo = Meteor.Minimongo;
+  var ObserveSequence;
 var warn = function () {
   if (ObserveSequence._suppressWarnings) {
     ObserveSequence._suppressWarnings--;
@@ -325,4 +326,5 @@ seqChangedToCursor = function (lastSeqArray, cursor, callbacks) {
 
   return [seqArray, observeHandle];
 };
-module.exports = ObserveSequence;
+  Meteor.ObserveSequence = ObserveSequence;
+};
