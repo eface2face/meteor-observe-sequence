@@ -7,6 +7,7 @@ module.exports = function(Meteor) {
   var ReactiveVar = Meteor.ReactiveVar;
   var Package = {};
   Package.minimongo = Meteor.Minimongo;
+  Package.minimongo.LocalCollection = LocalCollection;
   var ObserveSequence;
 var warn = function () {
   if (ObserveSequence._suppressWarnings) {
