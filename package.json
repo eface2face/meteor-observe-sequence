@@ -4,7 +4,7 @@
     "type": "git",
     "url": "https://github.com/eface2face/meteor-observe-sequence"
   },
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "",
   "main": "observe_sequence.js",
   "scripts": {
