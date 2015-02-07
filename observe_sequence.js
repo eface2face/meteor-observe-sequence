@@ -54,6 +54,30 @@ LocalCollection._idParse = function (id) {
   }
 };
 
+LocalCollection._makeChangedFields = function (newDoc, oldDoc) {
+  var fields = {};
+  LocalCollection._diffObjects(oldDoc, newDoc, {
+    leftOnly: function (key, value) {
+      fields[key] = undefined;
+    },
+    rightOnly: function (key, value) {
+      fields[key] = value;
+    },
+    both: function (key, leftValue, rightValue) {
+      if (!EJSON.equals(leftValue, rightValue))
+        fields[key] = rightValue;
+    }
+  });
+  return fields;
+};
+
+// Is this selector just shorthand for lookup by _id?
+LocalCollection._selectorIsId = function (selector) {
+  return (typeof selector === "string") ||
+    (typeof selector === "number") ||
+    selector instanceof LocalCollection._ObjectID;
+};
+
 // ordered: bool.
 // old_results and new_results: collections of documents.
 //    if ordered, they are arrays.
