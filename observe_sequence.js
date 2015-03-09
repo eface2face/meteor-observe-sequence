@@ -83,17 +83,20 @@ LocalCollection._selectorIsId = function (selector) {
 //    if ordered, they are arrays.
 //    if unordered, they are IdMaps
 LocalCollection._diffQueryChanges = function (ordered, oldResults, newResults,
-                                       observer) {
+                                              observer, options) {
   if (ordered)
     LocalCollection._diffQueryOrderedChanges(
-      oldResults, newResults, observer);
+      oldResults, newResults, observer, options);
   else
     LocalCollection._diffQueryUnorderedChanges(
-      oldResults, newResults, observer);
+      oldResults, newResults, observer, options);
 };
 
 LocalCollection._diffQueryUnorderedChanges = function (oldResults, newResults,
-                                                       observer) {
+                                                       observer, options) {
+  options = options || {};
+  var projectionFn = options.projectionFn || EJSON.clone;
+
   if (observer.movedBefore) {
     throw new Error("_diffQueryUnordered called with a movedBefore observer!");
   }
@@ -102,11 +105,16 @@ LocalCollection._diffQueryUnorderedChanges = function (oldResults, newResults,
     var oldDoc = oldResults.get(id);
     if (oldDoc) {
       if (observer.changed && !EJSON.equals(oldDoc, newDoc)) {
-        observer.changed(
-          id, LocalCollection._makeChangedFields(newDoc, oldDoc));
+        var projectedNew = projectionFn(newDoc);
+        var projectedOld = projectionFn(oldDoc);
+        var changedFields =
+              LocalCollection._makeChangedFields(projectedNew, projectedOld);
+        if (! _.isEmpty(changedFields)) {
+          observer.changed(id, changedFields);
+        }
       }
     } else if (observer.added) {
-      var fields = EJSON.clone(newDoc);
+      var fields = projectionFn(newDoc);
       delete fields._id;
       observer.added(newDoc._id, fields);
     }
@@ -121,7 +129,10 @@ LocalCollection._diffQueryUnorderedChanges = function (oldResults, newResults,
 };
 
 
-LocalCollection._diffQueryOrderedChanges = function (old_results, new_results, observer) {
+LocalCollection._diffQueryOrderedChanges = function (old_results, new_results,
+                                                     observer, options) {
+  options = options || {};
+  var projectionFn = options.projectionFn || EJSON.clone;
 
   var new_presence_of_id = {};
   _.each(new_results, function (doc) {
@@ -231,20 +242,20 @@ LocalCollection._diffQueryOrderedChanges = function (old_results, new_results, o
   var startOfGroup = 0;
   _.each(unmoved, function (endOfGroup) {
     var groupId = new_results[endOfGroup] ? new_results[endOfGroup]._id : null;
-    var oldDoc;
-    var newDoc;
-    var fields;
+    var oldDoc, newDoc, fields, projectedNew, projectedOld;
     for (var i = startOfGroup; i < endOfGroup; i++) {
       newDoc = new_results[i];
       if (!_.has(old_index_of_id, newDoc._id)) {
-        fields = EJSON.clone(newDoc);
+        fields = projectionFn(newDoc);
         delete fields._id;
         observer.addedBefore && observer.addedBefore(newDoc._id, fields, groupId);
         observer.added && observer.added(newDoc._id, fields);
       } else {
         // moved
         oldDoc = old_results[old_index_of_id[newDoc._id]];
-        fields = LocalCollection._makeChangedFields(newDoc, oldDoc);
+        projectedNew = projectionFn(newDoc);
+        projectedOld = projectionFn(oldDoc);
+        fields = LocalCollection._makeChangedFields(projectedNew, projectedOld);
         if (!_.isEmpty(fields)) {
           observer.changed && observer.changed(newDoc._id, fields);
         }
@@ -254,7 +265,9 @@ LocalCollection._diffQueryOrderedChanges = function (old_results, new_results, o
     if (groupId) {
       newDoc = new_results[endOfGroup];
       oldDoc = old_results[old_index_of_id[newDoc._id]];
-      fields = LocalCollection._makeChangedFields(newDoc, oldDoc);
+      projectedNew = projectionFn(newDoc);
+      projectedOld = projectionFn(oldDoc);
+      fields = LocalCollection._makeChangedFields(projectedNew, projectedOld);
       if (!_.isEmpty(fields)) {
         observer.changed && observer.changed(newDoc._id, fields);
       }
@@ -572,10 +585,14 @@ var diffArray = function (lastSeqArray, seqArray, callbacks) {
     addedBefore: function (id, doc, before) {
       var position = before ? posCur[idStringify(before)] : lengthCur;
 
-      _.each(posCur, function (pos, id) {
-        if (pos >= position)
-          posCur[id]++;
-      });
+      if (before) {
+        // If not adding at the end, we need to update indexes.
+        // XXX this can still be improved greatly!
+        _.each(posCur, function (pos, id) {
+          if (pos >= position)
+            posCur[id]++;
+        });
+      }
 
       lengthCur++;
       posCur[idStringify(id)] = position;
