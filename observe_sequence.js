@@ -1,4 +1,5 @@
 module.exports = function(Meteor) {
+  var seqChangedToEmpty ,seqChangedToArray ,seqChangedToCursor;
   var _ = Meteor.underscore;
   var Random = Meteor.Random;
   var Tracker = Meteor.Tracker;
@@ -77,7 +78,6 @@ LocalCollection._selectorIsId = function (selector) {
     (typeof selector === "number") ||
     selector instanceof LocalCollection._ObjectID;
 };
-
 // ordered: bool.
 // old_results and new_results: collections of documents.
 //    if ordered, they are arrays.
